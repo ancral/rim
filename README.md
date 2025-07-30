@@ -1,42 +1,42 @@
 # Recurrent Inpainting Model (RIM)
 
-Este repositorio contiene la implementación del modelo **RIM** (*Recurrent Inpainting Model*) aplicado a la reconstrucción de mapas de deformación o campos físicos a partir de datos incompletos obtenidos mediante sensores distribuidos. La arquitectura se basa en un proceso de difusión inversa condicionado, con un modelo de denoising entrenado sobre mapas en espacio RGB codificados.
+This repository contains the implementation of the **RIM** (*Recurrent Inpainting Model*) applied to the reconstruction of strain maps or physical fields from incomplete data obtained via distributed sensors. The architecture is based on a conditional reverse diffusion process, with a denoising model trained on RGB-encoded spatial maps.
 
-Este código está diseñado como soporte reproducible para los experimentos presentados en el artículo:
+This code is designed as reproducible support for the experiments presented in the article:  
 > **Full strain matrix estimation in thin-walled structures with recurrent inpainting model**  
 > *Cruz-Alonso, Terroba, Cuesta-Infante*  
-> [Nombre de la conferencia o revista, año]
+> [Journal name, year]
 
 ---
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 rim/
-├── main_rim.py                # Script principal de entrenamiento
+├── main_rim.py                # Main training script
+├── inference_rim.py
 ├── config/
-│   └── models.ini              # Configuración del modelo y entrenamiento
+│   └── models.ini             # Model and training configuration
 ├── models/
-│   ├── rim.py                 # Implementación del modelo RIM
-│   └── unet.py                 # Modelo UNet como red de denoising
+│   ├── rim.py                 # RIM model implementation
+│   └── unet.py                # UNet model used as denoising network
 ├── utils/
-│   ├── metrics.py              # Funciones de pérdida y métricas
-│   ├── generate_mask.py       # Generación de máscaras y datos
-│   └── mask_cube.npy                  # (Opcional) Máscara predefinida de sensores
-├── train/                      # Carpeta esperada para datos de entrenamiento (imágenes)
-└── test/                       # Carpeta esperada para datos de validación/test
-
+│   ├── metrics.py             # Loss functions and metrics
+│   ├── generate_mask.py       # Mask and data generation
+│   └── mask_cube.npy          # (Optional) Predefined sensor mask
+├── train/                     # Folder expected to contain training data (images)
+└── test/                      # Folder expected to contain validation/test data
 ```
 
 ---
 
-## Requisitos
+## Requirements
 
-- Python ≥ 3.8
-- TensorFlow ≥ 2.10
-- NumPy, Pillow, matplotlib, OpenCV, wandb (opcional)
+- Python ≥ 3.8  
+- TensorFlow ≥ 2.10  
+- NumPy, Pillow, matplotlib, OpenCV, wandb (optional)
 
-Instalación recomendada (entorno virtual):
+Recommended installation (virtual environment):
 
 ```bash
 python -m venv venv
@@ -44,27 +44,27 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> Asegúrate de registrar las funciones de pérdida personalizadas en `utils/metrics.py`, como `loss_inpainting`, `gradient_diff_loss`, etc.
+> Make sure to register custom loss functions in `utils/metrics.py`, such as `loss_inpainting`, `gradient_diff_loss`, etc.
 
 ---
 
-## Entrenamiento
+## Training
 
-Coloca tus datos de entrada en las carpetas `train/` y `test/`. Asegúrate de que sean imágenes `.png` o `.jpg` con dimensiones cuadradas.
+Place your input data in the `train/` and `test/` folders. Ensure they are `.png` or `.jpg` images with square dimensions.
 
-Luego ejecuta:
+Then run:
 
 ```bash
 python main_rim.py
 ```
 
-El modelo se entrenará usando la configuración definida en `config/models.ini` y se guardará en la carpeta `checkpoints/`.
+The model will train using the configuration defined in `config/models.ini` and checkpoints will be saved in the `checkpoints/` folder.
 
 ---
 
-## Configuración (`config/models.ini`)
+## Configuration (`config/models.ini`)
 
-Algunos de los parámetros clave son:
+Some key parameters are:
 
 ```ini
 [RIM]
@@ -74,15 +74,15 @@ beta_max = 0.2
 intensity_realce = 0.03
 intensity_smooth = 0.2
 umbral_realce = 20
-color_peak = 1.0, 1.0, 0.0       # Realce para picos (RGB)
-color_trough = 0.3, 0.0, 0.5     # Realce para valles (RGB)
+color_peak = 1.0, 1.0, 0.0       # Highlight for peaks (RGB)
+color_trough = 0.3, 0.0, 0.5     # Highlight for troughs (RGB)
 ```
 
 ---
 
-## Cita
+## Citation
 
-Si utilizas este código o los resultados derivados de este modelo, por favor cita el paper asociado:
+If you use this code or results derived from this model, please cite the associated paper:
 
 ```bibtex
 @article{XXX,
@@ -92,6 +92,7 @@ Si utilizas este código o los resultados derivados de este modelo, por favor ci
   year={2025}
 }
 ```
+
 ---
 
-Para cualquier duda técnica, contacto con el autor principal o crea una issue en el repositorio.
+For any technical questions, contact the lead author or open an issue in the repository.
