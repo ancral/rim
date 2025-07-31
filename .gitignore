@@ -2,3 +2,5 @@
 *.pyc
 checkpoints/
 outputs/
+dataset_original/
+utils/delete_files.py

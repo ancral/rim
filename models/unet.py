@@ -1,4 +1,3 @@
-import tensorflow as tf
 from tensorflow import keras
   
 class Unet:
@@ -8,7 +7,7 @@ class Unet:
     def __init__(self):
       self.prepare_model()
       
-    def prepare_model(self, input_size=(32, 32, 3)):  # Cambiado a 32x32x3
+    def prepare_model(self, input_size=(32, 32, 3)):
       inputs = keras.layers.Input(input_size)
 
       # Encoder
@@ -25,7 +24,7 @@ class Unet:
 
       conv9 = self.__ConvBlock(32, (3,3), (2,2), "relu", "same", up9, False)
 
-      # La salida final tiene 3 canales para las imágenes RGB
+      # The final output has 3 channels for RGB images
       outputs = keras.layers.Conv2D(3, (3, 3), activation="linear", padding="same")(conv9)
 
       model = keras.models.Model(inputs=[inputs], outputs=[outputs])

@@ -201,16 +201,16 @@ class createAugment(keras.utils.Sequence):
     return mask
 
   def __createMaskLines(self):
-    mask = np.full((32, 32), 255, np.uint8)
-    for _ in range(np.random.randint(10, 50)):
-      x1, x2 = np.random.randint(1, 32), np.random.randint(1, 32)
-      y1, y2 = np.random.randint(1, 32), np.random.randint(1, 32)
-      thickness = np.random.randint(1, 3)
-      cv2.line(mask,(x1,y1),(x2,y2),(0,0,0),thickness)
-
-    return mask
+      mask = np.full((self.dim[0], self.dim[1]), 0, np.uint8)
+      if self.full_squares:
+        for i in range(1, int(self.num_sensors / 4) + 1):
+          mask[i*self.gap_y_sensors, :] = 255
+          mask[:, i*self.gap_x_sensors] = 255
+      else:
+        for i in range(1, int(self.num_sensors / 2) + 1):
+          mask[i*self.gap_y_sensors, :] = 255
+      return mask
   
-
 def rearrange_image_and_create_mask(original_image, target_size):
     if len(original_image.shape) == 3:
         original_height, original_width, num_channels = original_image.shape
@@ -226,45 +226,45 @@ def rearrange_image_and_create_mask(original_image, target_size):
     div_h = (original_height // block_size) + 1
     div_w =  (num_blocks // div_h)
     
-    # Calcular las nuevas dimensiones para la imagen reorganizada
+    # Calculate new dimensions for the rearranged image
     new_height = block_size * div_h
     new_width = block_size * div_w
 
-    # Crear una nueva imagen con fondo blanco (padding) de tamaño new_height x new_width x num_channels
+    # Create a new image with white background (padding) of size new_height x new_width x num_channels
     if num_channels == 1:
         new_img = np.ones((new_height, new_width)) * 255
     else:
         new_img = np.ones((new_height, new_width, num_channels)) * 255
     
-    # Iterar sobre los bloques en la imagen original
+    # Iterate over blocks in the original image
     for i in range(num_blocks):
-        # Calcular la posición para pegar el bloque en la nueva imagen
+        # Calculate the position to paste the block in the new image
         new_left = (i % div_w) * block_size
         new_upper = (i // div_w) * block_size
         
-        # Pegar el bloque en la nueva imagen
+        # Paste the block in the new image
         if num_channels == 1:
             new_img[new_upper:new_upper+block_size, new_left:new_left+block_size] = original_image[:, i*block_size:(i+1)*block_size]
         else:
             new_img[new_upper:new_upper+block_size, new_left:new_left+block_size, :] = original_image[:, i*block_size:(i+1)*block_size, :]
     
-    # Crear una imagen final con fondo blanco (padding) de tamaño target_size x target_size x num_channels
+    # Create a final image with white background (padding) of size target_size x target_size x num_channels
     if num_channels == 1:
         final_img = np.zeros((target_size, target_size))
     else:
         final_img = np.zeros((target_size, target_size, num_channels))
     
-    # Calcular el padding vertical y horizontal para centrar la nueva imagen en la imagen final
+    # Calculate vertical and horizontal padding to center the new image in the final image
     vertical_padding = (target_size - new_height) // 2
     horizontal_padding = (target_size - new_width) // 2
     
-    # Pegar la imagen reorganizada en la imagen final, centrada verticalmente y horizontalmente
+    # Paste the rearranged image in the final image, centered vertically and horizontally
     if num_channels == 1:
         final_img[vertical_padding:vertical_padding+new_height, horizontal_padding:horizontal_padding+new_width] = new_img
     else:
         final_img[vertical_padding:vertical_padding+new_height, horizontal_padding:horizontal_padding+new_width, :] = new_img
     
-    # Crear una máscara indicando las áreas de padding
+    # Create a mask indicating padding areas
     mask = np.zeros((target_size, target_size))
     mask[vertical_padding:vertical_padding+new_height, horizontal_padding:horizontal_padding+new_width] = 1
     

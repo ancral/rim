@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import h5py
 import numpy as np
+
 from utils.generate_mask import rearrange_image_and_create_mask
 
 def print_progress_bar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -40,8 +41,8 @@ def loadFiles(path_dir, load_images=True, dim=32):
                     continue
                 collected.append(np.array(img))
         except Exception as e:
-            print(f"[WARNING] No se pudo procesar {filepath}: {e}")
+            print(f"[WARNING] Could not process {filepath}: {e}")
 
     collected_np = np.array(collected)
-    print(f"\nTotal cargado: {collected_np.shape}")
+    print(f"\nTotal loaded: {collected_np.shape}")
     return collected_np

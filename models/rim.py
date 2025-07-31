@@ -1,15 +1,14 @@
-from matplotlib import pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import Model
-from models.unet import Unet
 
+from models.unet import Unet
 
 class Rim(Model):
     def __init__(self, denoising_model=Unet(), padding_zone=None, rim_cfg=None, **kwargs):        
         if rim_cfg is None:
-            raise ValueError("Debe proporcionarse un archivo de configuración (.ini) correctamente leído con configparser.")
+            raise ValueError("A configuration (.ini) file parsed with configparser must be provided.")
 
-        # ==== Hiperparámetros del modelo desde config ====
+        # ==== Read config ====
         self.timesteps = int(rim_cfg["timesteps"])
         self.beta_min = float(rim_cfg["beta_min"])
         self.beta_max = float(rim_cfg["beta_max"])
@@ -21,21 +20,20 @@ class Rim(Model):
         self.trough_color = self._parse_rgb(rim_cfg["color_trough"])
         self.padding_zone = padding_zone
 
-        # Luego llamas al super (ya sin 'config' en kwargs)
         super(Rim, self).__init__(**kwargs)
 
-        # ==== Red de denoising (por defecto: UNet) ====
+        # ==== Denoising model (UNet) ====
         self.denoising_model = denoising_model.prepare_model()
         self.denoising_class = denoising_model
 
-        # ==== Parámetros de difusión ====
+        # ==== Alphas and betas for diffusion schedule ====
         self.betas = tf.linspace(self.beta_min, self.beta_max, self.timesteps)
         self.alphas = 1.0 - self.betas
 
     def _parse_rgb(self, rgb_string):
         values = [float(x.strip()) for x in rgb_string.split(",")]
         if len(values) != 3:
-            raise ValueError(f"Se esperaban 3 valores RGB, pero se recibieron: {rgb_string}")
+            raise ValueError(f"Expected 3 RGB values, got: {rgb_string}")
         return values
 
     def reverse_diffusion_step(self, x_t, t, pred_noise, sensor_data, pad):
@@ -97,7 +95,7 @@ class Rim(Model):
             pad = tf.expand_dims(pad, axis=0)              # (1, H, W)
             pad = tf.expand_dims(pad, axis=-1)             # (1, H, W, 1)
             pad = tf.tile(pad, [shape[0], 1, 1, shape[3]])  # (B, H, W, C)
-            
+
         noisy_image = self.refinement_pass(noisy_image, sensor_data, training, pad)
         return tf.clip_by_value(noisy_image, 0, 1)
 
