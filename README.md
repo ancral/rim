@@ -92,7 +92,7 @@ This model supports two types of input data: **Cube** and **Surface** datasets. 
 
 ## Configuration (`config/models.ini`)
 
-Below is an example of the configuration block used by the Reverse Inference Model (RIM):
+Below is an example of the configuration block used by RIM:
 
 ```
 [RIM]
